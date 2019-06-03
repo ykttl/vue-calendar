@@ -56,11 +56,11 @@ export default {
 
       const data = weeksInCalendar.map((empty, weekIndex) =>
         daysInWeek.map((empty, dayIndex) => {
-          const cellIndex = 7 * weekIndex + dayIndex - indexOfTheFirstDay;
-          if (cellIndex < 0 || daysArr[cellIndex] === undefined) {
+          const index = 7 * weekIndex + dayIndex - indexOfTheFirstDay;
+          if (index < 0 || daysArr[index] === undefined) {
             return null;
           }
-          return daysArr[cellIndex];
+          return daysArr[index];
         })
       );
 
