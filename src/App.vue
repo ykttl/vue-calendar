@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    {{ yearMonth }}
+    {{ yearAndMonth }}
     <button @click="goPrevMonth">prev</button>
     <button @click="goNextMonth">next</button>
 
     <table>
       <tr>
-        <th>日</th>
-        <th>月</th>
-        <th>火</th>
-        <th>水</th>
-        <th>木</th>
-        <th>金</th>
-        <th>土</th>
+        <th>Sun</th>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
       </tr>
       <template v-for="week in calendarData">
         <tr>
@@ -30,43 +30,50 @@ import moment from "moment";
 export default {
   name: "app",
   data: () => ({
-    current: 0
+    monthCounter: 0
   }),
   computed: {
-    currentMoment() {
-      return moment().add(this.current, "months");
+    currentDate() {
+      return moment().add(this.monthCounter, "months");
     },
-    yearMonth() {
-      return this.currentMoment.format("YYYY MM");
+    yearAndMonth() {
+      return this.currentDate.format("YYYY MM");
     },
     calendarData() {
-      // この月に何日まであるかを算出
-      const numOfMonth = this.currentMoment.endOf("month").date();
-      // この月の1日〜最終日までの配列
-      const daysOfMonth = [...Array(numOfMonth).keys()].map(i => ++i);
-      // 1日の曜日（0~6の数値で取得）
-      const firstWeekDay = this.currentMoment.startOf("month").weekday();
-      // 週ごとの二次元配列を生成
-      const data = [...Array(6)].map((empty, weekIndex) =>
-        [...Array(7)].map((empty, dayIndex) => {
-          const i = 7 * weekIndex + dayIndex - firstWeekDay;
-          if (i < 0 || daysOfMonth[i] === undefined) {
+      // the value will be 28(days) if it's Fedurary for example
+      const numOfDaysInMonth = this.currentDate.endOf("month").date();
+
+      // create the same length of Array as number of the days in the month
+      // -> [0,1,2,3...27], then make it [1,2,3...28]
+      const daysArr = [...Array(numOfDaysInMonth).keys()].map(i => ++i);
+
+      // if the first day in the month is Sunday, return 0. if Monday, return 1. if Saturday, 6.
+      const indexOfTheFirstDay = this.currentDate.startOf("month").weekday();
+
+      // create empty arrays for Calendar
+      const weeksInCalendar = [...Array(6)];
+      const daysInWeek = [...Array(7)];
+
+      const data = weeksInCalendar.map((empty, weekIndex) =>
+        daysInWeek.map((empty, dayIndex) => {
+          const cellIndex = 7 * weekIndex + dayIndex - indexOfTheFirstDay;
+          if (cellIndex < 0 || daysArr[cellIndex] === undefined) {
             return null;
           }
-          return daysOfMonth[i];
+          return daysArr[cellIndex];
         })
       );
-      console.log(data);
-      // 全てnullの配列があれば除去する
+
+      // if there is an array of week with only null, remove it
       return data.filter(week => week.filter(day => day != null).length > 0);
     }
   },
   methods: {
     goNextMonth() {
-      this.current++;
+      this.monthCounter++;
     },
     goPrevMonth() {
-      this.current--;
+      this.monthCounter--;
     }
   }
 };
@@ -82,3 +89,7 @@ export default {
   margin-top: 60px;
 }
 </style>
+
+
+
+
